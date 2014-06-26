@@ -6,6 +6,8 @@ import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import com.zentity.demo.domain.ATM;
 import com.zentity.demo.repositories.ATMRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +21,8 @@ public class RestController {
 
     @Autowired
     private ATMRepository atmRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @RequestMapping("within_radius")
     public List<ATM> withinRadius(@RequestParam double standPointLatitude, @RequestParam double standPointLongitude, @RequestParam int radiusMeters, @RequestParam int limit) {
@@ -44,11 +48,14 @@ public class RestController {
     public List<ATM> inRect(@RequestParam double latitude1, @RequestParam double latitude2, @RequestParam double longitude1, @RequestParam double longitude2,
                             @RequestParam(required = false) Double standPointLatitude, @RequestParam(required = false) Double standPointLongitude,
                             @RequestParam int limit) {
+        logger.info("Going to execute in_rect query.");
+        long time = System.nanoTime();
         List<ATM> atms = atmRepository.findByLocLatCentroidBetweenAndLocLongCentroidBetween(
                 Math.min(latitude1, latitude2),
                 Math.max(latitude1, latitude2),
                 Math.min(longitude1, longitude2),
                 Math.max(longitude1, longitude2));
+        logger.info("in_rect query took " + ((System.nanoTime() - time) / 1000000) + " ms.");
         if (standPointLatitude == null || standPointLongitude == null) {
             Collections.shuffle(atms);
             return atms.stream()
