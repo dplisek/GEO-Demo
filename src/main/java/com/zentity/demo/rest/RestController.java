@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,17 +42,25 @@ public class RestController {
 
     @RequestMapping("in_rect")
     public List<ATM> inRect(@RequestParam double latitude1, @RequestParam double latitude2, @RequestParam double longitude1, @RequestParam double longitude2,
-                            @RequestParam double standPointLatitude, @RequestParam double standPointLongitude, @RequestParam int limit) {
-        Point standPoint = new Point(new DegreeCoordinate(standPointLatitude), new DegreeCoordinate(standPointLongitude));
+                            @RequestParam(required = false) Double standPointLatitude, @RequestParam(required = false) Double standPointLongitude,
+                            @RequestParam int limit) {
         List<ATM> atms = atmRepository.findByLocLatCentroidBetweenAndLocLongCentroidBetween(
                 Math.min(latitude1, latitude2),
                 Math.max(latitude1, latitude2),
                 Math.min(longitude1, longitude2),
                 Math.max(longitude1, longitude2));
-        return atms.stream()
-                .sorted((a1, a2) -> getATMDistanceFromStandPoint(standPoint, a1).compareTo(getATMDistanceFromStandPoint(standPoint, a2)))
-                .limit(limit)
-                .collect(Collectors.toList());
+        if (standPointLatitude == null || standPointLongitude == null) {
+            Collections.shuffle(atms);
+            return atms.stream()
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        } else {
+            Point standPoint = new Point(new DegreeCoordinate(standPointLatitude), new DegreeCoordinate(standPointLongitude));
+            return atms.stream()
+                    .sorted((a1, a2) -> getATMDistanceFromStandPoint(standPoint, a1).compareTo(getATMDistanceFromStandPoint(standPoint, a2)))
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
     }
 
     private Double getATMDistanceFromStandPoint(Point standPoint, ATM atm) {
