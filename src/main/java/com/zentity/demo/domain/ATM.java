@@ -13,31 +13,31 @@ public class ATM {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "location")
+    @Column(name = "location", length = 128)
     private String location;
 
-    @Column(name = "provider")
+    @Column(name = "provider", length = 128)
     private String provider;
 
-    @Column(name = "address")
+    @Column(name = "address", length = 128)
     private String address;
 
-    @Column(name = "city")
+    @Column(name = "city", length = 64)
     private String city;
 
-    @Column(name = "state")
+    @Column(name = "state", length = 64)
     private String state;
 
-    @Column(name = "postal")
+    @Column(name = "postal", length = 16)
     private String postal;
 
-    @Column(name = "country")
+    @Column(name = "country", length = 64)
     private String country;
 
-    @Column(name = "loc_lat_centroid", columnDefinition = "decimal(10,7)")
+    @Column(name = "loc_lat_centroid", precision = 10, scale = 7)
     private Double locLatCentroid;
 
-    @Column(name = "loc_long_centroid", columnDefinition = "decimal(10,7)")
+    @Column(name = "loc_long_centroid", precision = 10, scale = 7)
     private Double locLongCentroid;
 
     public int getDistanceMeters() {
